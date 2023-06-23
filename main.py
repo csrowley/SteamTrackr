@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
-import random
+import json
 
 from steam import Steam
 from decouple import config
@@ -27,8 +27,25 @@ async def on_ready():
     print("Registered commands:", bot.commands)
 
 @bot.command()
-async def sendnum(ctx):
+async def myGames(ctx, name):
+    message = ""
     print("Command triggered!")
-    await ctx.reply(f'Your number is: {random.randint(0,999)}')
+    
+    user_data = steam.users.get_owned_games(name)
+    games_list = user_data['games']
+
+    for game in games_list:
+        if(len(game['name']) + len(message) >= 2000):
+            await ctx.send(message)
+            message = ""
+
+        message += game['name']
+        message += ", \n"
+
+    await ctx.reply(message)
+
+@bot.command()
+async def sortByPlaytime(ctx, username):
+    return 0
 
 bot.run(token)
