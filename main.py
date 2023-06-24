@@ -59,7 +59,9 @@ async def sortByPlaytime(ctx, username):
     for game in games_list:
         game_dict[game['name']] = game['playtime_forever']
 
-    for game, playtime in game_dict.items():
+    sorted_dict = OrderedDict(sorted(game_dict.items(), key=lambda item: -item[1]))
+
+    for game, playtime in sorted_dict.items():
         time_in_hrs = playtime / 60.0
 
         length_check = f'{game}: {round(time_in_hrs,1)} hrs'
