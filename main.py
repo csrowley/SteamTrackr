@@ -1,11 +1,14 @@
 import discord
 from discord.ext import commands
+
 from dotenv import load_dotenv
 import os
 import json
 
 from steam import Steam
 from decouple import config
+
+from collections import OrderedDict
 
 KEY = config("STEAM_API_KEY")
 
@@ -46,6 +49,28 @@ async def myGames(ctx, name):
 
 @bot.command()
 async def sortByPlaytime(ctx, username):
-    return 0
+    message = """"""
+    print("command triggered")
+    user_data = steam.users.get_owned_games(username)
+    games_list = user_data['games']
+
+
+    for game in games_list:
+        game_dict = OrderedDict()
+        game_dict[game['name']] = game['playtime_forever']
+
+    for game, playtime in game_dict.items():
+        time_in_hrs = playtime / 60.0
+
+        length_check = f'{game}: {time_in_hrs} hrs'
+
+        if(len(length_check) + len(message) > 2000):
+            await ctx.reply(message)
+            message = """"""
+
+        message += f'{game}: {time_in_hrs} hrs\n'
+
+
+    await ctx.reply(message)
 
 bot.run(token)
