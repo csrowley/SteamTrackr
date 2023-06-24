@@ -54,21 +54,21 @@ async def sortByPlaytime(ctx, username):
     user_data = steam.users.get_owned_games(username)
     games_list = user_data['games']
 
+    game_dict = OrderedDict()
 
     for game in games_list:
-        game_dict = OrderedDict()
         game_dict[game['name']] = game['playtime_forever']
 
     for game, playtime in game_dict.items():
         time_in_hrs = playtime / 60.0
 
-        length_check = f'{game}: {time_in_hrs} hrs'
+        length_check = f'{game}: {round(time_in_hrs,1)} hrs'
 
         if(len(length_check) + len(message) > 2000):
             await ctx.reply(message)
             message = """"""
 
-        message += f'{game}: {time_in_hrs} hrs\n'
+        message += f'{game}: {round(time_in_hrs,1)} hrs\n'
 
 
     await ctx.reply(message)
