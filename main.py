@@ -11,12 +11,9 @@ from decouple import config
 from collections import OrderedDict
 
 KEY = config("STEAM_API_KEY")
-
 steam = Steam(KEY)
 
-
 load_dotenv()
-
 token = os.getenv("TOKEN")
 
 intents = discord.Intents.default()
@@ -74,5 +71,43 @@ async def sortByPlaytime(ctx, username):
 
 
     await ctx.reply(message)
+
+@bot.command()
+async def checkIfSale(ctx, title):
+    game_json = steam.apps.search_games(title)
+    game_data = game_json['apps']
+
+    game_id = ""
+    game_price = ""
+    game_link = ""
+
+    for data in game_data:
+        if(data['name'] != title):
+            continue
+
+        game_id = data['id']
+        game_price = data['price']
+        game_link = data['link']
+    
+    #if user enters wrong title, or empty string
+    if(game_id == ""):
+        await ctx.reply(f"Unfortunately {title} could not be found. Please enter the exact spelling of the game.")
+        return
+
+    full_json = steam.apps.get_app_details(game_id)
+    mydata = json.loads(full_json)
+
+    discount = mydata[str(game_id)]['data']['price_overview']['discount_percent']
+
+    if(discount <= 0):
+        await ctx.reply(f"Sorry, {title} is not on sale. The current price is {game_price}. Check the official store page for more details: {game_link}")
+
+        return
+    
+    await ctx.reply(f"{title} is currently on sale for {game_price}. The discount is {discount}%. Check the official store page for more details: {game_link}")
+        
+
+
+    
 
 bot.run(token)
