@@ -2,112 +2,41 @@ import discord
 from discord.ext import commands
 
 from dotenv import load_dotenv
-import os
-import json
 
-from steam import Steam
 from decouple import config
 
-from collections import OrderedDict
+from steam.webapi import WebAPI
+
+from cog.user_commands import UserCog
+from cog.game_data import GamesCog
 
 KEY = config("STEAM_API_KEY")
-steam = Steam(KEY)
+api = WebAPI(key = KEY)
 
 load_dotenv()
-token = os.getenv("TOKEN")
+token = config("TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='.', intents=intents)
 
+async def setup_cogs():
+    user_cog = UserCog(bot)
+    games_cog = GamesCog(bot)
+    await bot.add_cog(user_cog)
+    await bot.add_cog(games_cog)
+
 @bot.event
 async def on_ready():
+    await setup_cogs()
     print(f'Logged in as {bot.user} ({bot.user.id})')
     print("Registered commands:", bot.commands)
 
-@bot.command()
-async def myGames(ctx, name):
-    message = ""
-    print("Command triggered!")
-    
-    user_data = steam.users.get_owned_games(name)
-    games_list = user_data['games']
 
-    for game in games_list:
-        if(len(game['name']) + len(message) >= 2000):
-            await ctx.send(message)
-            message = ""
+def main():
+    bot.run(token)
 
-        message += game['name']
-        message += ", \n"
+if __name__ == '__main__':
+    main()
 
-    await ctx.reply(message)
-
-@bot.command()
-async def sortByPlaytime(ctx, username):
-    message = """"""
-    print("command triggered")
-    user_data = steam.users.get_owned_games(username)
-    games_list = user_data['games']
-
-    game_dict = OrderedDict()
-
-    for game in games_list:
-        game_dict[game['name']] = game['playtime_forever']
-
-    sorted_dict = OrderedDict(sorted(game_dict.items(), key=lambda item: -item[1]))
-
-    for game, playtime in sorted_dict.items():
-        time_in_hrs = playtime / 60.0
-
-        length_check = f'{game}: {round(time_in_hrs,1)} hrs'
-
-        if(len(length_check) + len(message) > 2000):
-            await ctx.reply(message)
-            message = """"""
-
-        message += f'{game}: {round(time_in_hrs,1)} hrs\n'
-
-
-    await ctx.reply(message)
-
-@bot.command()
-async def checkIfSale(ctx, title):
-    game_json = steam.apps.search_games(title)
-    game_data = game_json['apps']
-
-    game_id = ""
-    game_price = ""
-    game_link = ""
-
-    for data in game_data:
-        if(data['name'] != title):
-            continue
-
-        game_id = data['id']
-        game_price = data['price']
-        game_link = data['link']
-    
-    #if user enters wrong title, or empty string
-    if(game_id == ""):
-        await ctx.reply(f"Unfortunately {title} could not be found. Please enter the exact spelling of the game.")
-        return
-
-    full_json = steam.apps.get_app_details(game_id)
-    mydata = json.loads(full_json)
-
-    discount = mydata[str(game_id)]['data']['price_overview']['discount_percent']
-
-    if(discount <= 0):
-        await ctx.reply(f"Sorry, {title} is not on sale. The current price is {game_price}. Check the official store page for more details: {game_link}")
-
-        return
-    
-    await ctx.reply(f"{title} is currently on sale for {game_price}. The discount is {discount}%. Check the official store page for more details: {game_link}")
-        
-
-
-    
-
-bot.run(token)
