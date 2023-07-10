@@ -5,8 +5,9 @@ from collections import OrderedDict
 from apps import searchGameID
 import json
 from requests import request, Response
-import requests
 
+import requests
+from bs4 import BeautifulSoup
 
 KEY = config("STEAM_API_KEY")
 api = WebAPI(key = KEY)
@@ -61,6 +62,43 @@ class GamesCog(commands.Cog):
         else:
             await ctx.reply(f"'{title}' could not be found.")
             
+    #possibly use "on_scheduled_event" ?
+    #scrape the steam official news tab for possible sales
+    @commands.command()
+    async def setEventReminder(self,ctx, switch):
+        all_sales = {"steam spring sale", "steam summer sale", "steam autumn sale", "steam winter sale", "halloween"}
+        url = "https://store.steampowered.com/"
+        response = requests.get(url)
+        
+        soup = BeautifulSoup(response.text, "html.parser")
+        meta_desc = soup.find("meta", property="og:description")
 
-    #@commands.command()
-    #async def setEventReminder(self,ctx, switch):
+        
+
+        if meta_desc:
+            desc = meta_desc["content"].lower()
+            for sales in all_sales:
+                if sales in desc:
+                    await ctx.reply(sales.title())
+                    return
+
+
+    @commands.Cog.listener()
+    async def on_steam_event_sale(self,ctx,user):
+        months_active = [1,3,6,7,10,11,12]
+            
+    
+    @commands.Cog.listener()
+    async def on_game_sale(self,ctx,user,title):
+        print("")
+
+    @commands.command()
+    async def topGames(self, ctx, ceiling):
+        return
+    
+    @commands.command()
+    async def mostPlayed(self, ctx, ceiling):
+        return
+    
+    #implement a news functionality
+    #eventually implement epic games price tracking

@@ -1,4 +1,3 @@
-
 from discord.ext import commands
 from steam.webapi import WebAPI
 from decouple import config
@@ -80,3 +79,18 @@ class UserCog(commands.Cog):
 
         except Exception as e:
             await ctx.reply(f"User: '{username}' could not be found.")
+
+    @commands.command()
+    async def myWishlist(self, ctx, user):
+        return
+    
+    @commands.command()
+    async def addWishlist(self, ctx, user, title):
+        return
+    
+    @commands.command()
+    async def removeWishlist(self, ctx, user, title):
+        return
+    
+
+    #add functionality where user can enter private message in DMs
