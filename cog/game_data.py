@@ -82,22 +82,44 @@ class GamesCog(commands.Cog):
                     await ctx.reply(sales.title())
                     return
 
-
+    #DB method
     @commands.Cog.listener()
     async def on_steam_event_sale(self,ctx,user):
         months_active = [1,3,6,7,10,11,12]
             
-    
+    #DB method
     @commands.Cog.listener()
     async def on_game_sale(self,ctx,user,title):
         print("")
 
-    @commands.command()
-    async def topGames(self, ctx, ceiling):
-        return
-    
+
     @commands.command()
     async def mostPlayed(self, ctx, ceiling):
+        max_titles = 35
+        url = "https://steamspy.com/api.php?request=top100in2weeks"
+        response  = requests.get(url)
+        games = json.loads(response.content)
+
+        rank = 1
+        message = ""
+        for id, data in games.items():
+            if(rank > int(ceiling) or rank > max_titles): break
+
+            if(len(message) >= 1850):
+                await ctx.reply(message)
+                message = ""
+
+            formatted_price = float(data['price']) / 100.0
+            message += f"{rank}: {data['name']} - Price: ${formatted_price}"
+            message += "\n"
+
+            rank += 1
+        
+        await ctx.reply(message)
+
+    
+    @commands.command()
+    async def topRated(self, ctx, ceiling):
         return
     
     #implement a news functionality
