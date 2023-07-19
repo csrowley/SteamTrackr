@@ -22,8 +22,15 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='.', intents=intents)
 
-#@bot.command()
-#@is_owner()
+@bot.command()
+@is_owner()
+async def sync(ctx):
+    user_cog = UserCog(bot)
+    games_cog = GamesCog(bot)
+    cmds = await ctx.bot.tree.sync()
+    await ctx.send(f"Synced {len(cmds)} to the server")
+    return
+
 async def setup_cogs():
     user_cog = UserCog(bot)
     games_cog = GamesCog(bot)

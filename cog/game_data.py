@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord import app_commands
 from discord import Interaction
+from discord import Embed
 
 from steam.webapi import WebAPI
 from decouple import config
@@ -23,13 +24,6 @@ class GamesCog(commands.Cog):
     async def on_ready(self):
         print("Games Cog On")
 
-    #make owner only command
-    @commands.command()
-    async def sync(self, ctx):
-        cmds = await ctx.bot.tree.sync()
-        await ctx.send(f"Synced {len(cmds)} to the server")
-        return
-    
     @app_commands.command(
         name = "checkifsale",
         description = "Check if a game is on sale!"
@@ -107,7 +101,7 @@ class GamesCog(commands.Cog):
                     await interaction.response.send_message(sales.title())
                     return
                 
-            await ("No major sales.")
+            await interaction.response.send_message("No major sale event.")
 
     #DB method
     @commands.Cog.listener()
@@ -163,4 +157,59 @@ class GamesCog(commands.Cog):
         return
     
     #implement a news functionality
+    @app_commands.command(
+            name = "gamenews",
+            description = "Retrieves the most recent news post for a game"
+            )
+    @app_commands.describe(title = "Enter your game title with exact spelling")
+    async def gamenews(self, interaction: Interaction, title: str):
+        appids = searchGameID(title, api)
+
+        news = api.call(
+            "ISteamNews.GetNewsForApp",
+            appid = appids,
+            count = 1
+            )
+        return
+        #GetNewsForApp
+
+
+    @app_commands.command(
+        name = "patchnotes",
+        description = "Retrieves the most recent 'patch notes' news for a game"
+        )
+    @app_commands.describe(gametitle = "Enter your game title with exact spelling")
+    async def patchnotes(self, interaction: Interaction, gametitle: str):
+        try:
+            appids = searchGameID(gametitle, api)
+            response = requests.get("https://store.steampowered.com/api/appdetails")
+            #https://store.steampowered.com/api/appdetails?appids={id} possibly use for thumbail
+
+            news = api.call(
+                "ISteamNews.GetNewsForApp",
+                appid = appids,
+                maxlength = 200,
+                count = 1,
+                tags = "patchnotes"
+                )
+            
+            news_url = news['appnews']['newsitems'][0]['url']
+            news_title = news['appnews']['newsitems'][0]['title']
+            news_content = news['appnews']['newsitems'][0]['contents']
+
+            embed = Embed(title = gametitle, url = news_url, color = 0x774299)
+            embed.set_thumbnail(url = "https://clan.akamai.steamstatic.com/images/4145017/5d65f58bf860dc2c64e56e0f440a5168afb4228c.png")
+            embed.add_field(name = news_title, value = news_content, inline=False)
+            embed.set_footer(text="Image does not represent acutal download size.")
+            await interaction.response.send_message(embed=embed)
+            
+
+        except:
+            await interaction.response.send_message("An error has occured")
+        
+
+        #GetNewsForApp
+
+    
+
     #eventually implement epic games price tracking

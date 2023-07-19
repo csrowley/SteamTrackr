@@ -2,6 +2,8 @@ from discord.ext import commands
 from steam.webapi import WebAPI
 from decouple import config
 from collections import OrderedDict
+from discord import Interaction
+from discord import app_commands
 
 
 KEY = config("STEAM_API_KEY")
@@ -10,6 +12,10 @@ api = WebAPI(key = KEY)
 class UserCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print("User Commands On")
     
     @commands.command()
     async def myGames(self, ctx, name):
@@ -79,6 +85,14 @@ class UserCog(commands.Cog):
 
         except Exception as e:
             await ctx.reply(f"User: '{username}' could not be found.")
+
+    @app_commands.command(description = "Display a user's profile")
+    async def userprofile(self, interaction: Interaction, user: str):
+        return
+    '''
+    GetPlayerSummaries
+    GetPlayerBans
+    '''
 
     #DB method
     @commands.command()
