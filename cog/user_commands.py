@@ -80,14 +80,17 @@ class UserCog(commands.Cog):
         except Exception as e:
             await ctx.reply(f"User: '{username}' could not be found.")
 
+    #DB method
     @commands.command()
     async def myWishlist(self, ctx, user):
         return
     
+    #DB method
     @commands.command()
     async def addWishlist(self, ctx, user, title):
         return
     
+    #DB method
     @commands.command()
     async def removeWishlist(self, ctx, user, title):
         return

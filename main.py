@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
-
+from discord.ext.commands import is_owner, Context
 from dotenv import load_dotenv
+from discord import Interaction
 
 from decouple import config
 
@@ -21,6 +22,8 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='.', intents=intents)
 
+#@bot.command()
+#@is_owner()
 async def setup_cogs():
     user_cog = UserCog(bot)
     games_cog = GamesCog(bot)
