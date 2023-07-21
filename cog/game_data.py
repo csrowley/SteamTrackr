@@ -161,18 +161,31 @@ class GamesCog(commands.Cog):
             name = "gamenews",
             description = "Retrieves the most recent news post for a game"
             )
-    @app_commands.describe(title = "Enter your game title with exact spelling")
-    async def gamenews(self, interaction: Interaction, title: str):
-        appids = searchGameID(title, api)
+    @app_commands.describe(gametitle = "Enter your game title with exact spelling")
+    async def gamenews(self, interaction: Interaction, gametitle: str):
+        try:
+            appids = searchGameID(gametitle, api)
+            #https://store.steampowered.com/api/appdetails?appids={id} possibly use for thumbail
 
-        news = api.call(
-            "ISteamNews.GetNewsForApp",
-            appid = appids,
-            count = 1
-            )
-        return
-        #GetNewsForApp
+            news = api.call(
+                "ISteamNews.GetNewsForApp",
+                appid = appids,
+                maxlength = 250,
+                count = 1
+                )
+            
+            news_url = news['appnews']['newsitems'][0]['url']
+            news_title = news['appnews']['newsitems'][0]['title']
+            news_content = news['appnews']['newsitems'][0]['contents']
 
+            embed = Embed(title = gametitle, url = news_url, color = 0x774299)
+            embed.set_thumbnail(url = "https://store.cloudflare.steamstatic.com/public/shared/images/news/social_share_default.jpg")
+            embed.add_field(name = news_title, value = news_content, inline=False)
+            embed.set_footer(text= "Work in Progress \u26A0 Not all links are official steam news.")
+            await interaction.response.send_message(embed=embed)
+
+        except:
+            await interaction.response.send_message("An error has occured")
 
     @app_commands.command(
         name = "patchnotes",
@@ -182,7 +195,6 @@ class GamesCog(commands.Cog):
     async def patchnotes(self, interaction: Interaction, gametitle: str):
         try:
             appids = searchGameID(gametitle, api)
-            response = requests.get("https://store.steampowered.com/api/appdetails")
             #https://store.steampowered.com/api/appdetails?appids={id} possibly use for thumbail
 
             news = api.call(
@@ -205,7 +217,7 @@ class GamesCog(commands.Cog):
             
 
         except:
-            await interaction.response.send_message("An error has occured")
+            await interaction.response.send_message("No patch notes could be found.")
         
 
         #GetNewsForApp
