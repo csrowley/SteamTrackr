@@ -1,7 +1,5 @@
 from discord.ext import commands
-from discord import app_commands
-from discord import Interaction
-from discord import Embed
+from discord import app_commands,Interaction,Embed
 
 from steam.webapi import WebAPI
 from decouple import config
@@ -24,10 +22,7 @@ class GamesCog(commands.Cog):
     async def on_ready(self):
         print("Games Cog On")
 
-    @app_commands.command(
-        name = "checkifsale",
-        description = "Check if a game is on sale!"
-        )
+    @app_commands.command(name = "checkifsale", description = "Check if a game is on sale!")
     @app_commands.describe(title = "Enter a game title with exact spelling")
     async def checkifsale(self, interaction: Interaction, title: str):
         try:
@@ -59,10 +54,8 @@ class GamesCog(commands.Cog):
         except Exception as e:
             await interaction.response.send_message(f"'{title}' could not be found.")
 
-    @app_commands.command(
-        name = "playercount",
-        description = "Enter game title for current player count!"
-        )
+
+    @app_commands.command(name = "playercount", description = "Enter game title for current player count!")
     @app_commands.describe(title = "Game title must be spelled exactly")
     async def playercount(self, interaction: Interaction, title: str):
 
@@ -77,47 +70,9 @@ class GamesCog(commands.Cog):
 
         else:
             await interaction.response.send_message(f"'{title}' could not be found.")
-            
-    #possibly use "on_scheduled_event" ?
-    #scrape the steam official news tab for possible sales
-    @commands.command()
-    async def setEventReminder(self,ctx, switch):
-        return
 
 
-    @app_commands.command(description = "Checks for any major Steam Sales")
-    async def checksaleevents(self, interaction: Interaction):
-        all_sales = {"steam spring sale", "steam summer sale", "steam autumn sale", "steam winter sale", "halloween"}
-        url = "https://store.steampowered.com/"
-        response = requests.get(url)
-        
-        soup = BeautifulSoup(response.text, "html.parser")
-        meta_desc = soup.find("meta", property="og:description")
-
-        if meta_desc:
-            desc = meta_desc["content"].lower()
-            for sales in all_sales:
-                if sales in desc:
-                    await interaction.response.send_message(sales.title())
-                    return
-                
-            await interaction.response.send_message("No major sale event.")
-
-    #DB method
-    @commands.Cog.listener()
-    async def on_steam_event_sale(self,ctx,user):
-        months_active = [1,3,6,7,10,11,12]
-            
-    #DB method
-    @commands.Cog.listener()
-    async def on_game_sale(self,ctx,user,title):
-        print("")
-
-
-    @app_commands.command(
-            name = "mostplayed",
-            description = "Lists top n most played games. 35 MAX"
-            )
+    @app_commands.command(name = "mostplayed", description = "Lists top n most played games. 35 MAX")
     @app_commands.describe(ceiling = "Amount of games to list. Max = 35")
     @app_commands.choices(hidden = [
         app_commands.Choice(name = "Hide", value = 1),
@@ -155,42 +110,9 @@ class GamesCog(commands.Cog):
     @commands.command()
     async def topRated(self, ctx, ceiling):
         return
-    
-    #implement a news functionality
-    @app_commands.command(
-            name = "gamenews",
-            description = "Retrieves the most recent news post for a game"
-            )
-    @app_commands.describe(gametitle = "Enter your game title with exact spelling")
-    async def gamenews(self, interaction: Interaction, gametitle: str):
-        try:
-            appids = searchGameID(gametitle, api)
-            #https://store.steampowered.com/api/appdetails?appids={id} possibly use for thumbail
 
-            news = api.call(
-                "ISteamNews.GetNewsForApp",
-                appid = appids,
-                maxlength = 250,
-                count = 1
-                )
-            
-            news_url = news['appnews']['newsitems'][0]['url']
-            news_title = news['appnews']['newsitems'][0]['title']
-            news_content = news['appnews']['newsitems'][0]['contents']
 
-            embed = Embed(title = gametitle, url = news_url, color = 0x774299)
-            embed.set_thumbnail(url = "https://store.cloudflare.steamstatic.com/public/shared/images/news/social_share_default.jpg")
-            embed.add_field(name = news_title, value = news_content, inline=False)
-            embed.set_footer(text= "Work in Progress \u26A0 Not all links are official steam news.")
-            await interaction.response.send_message(embed=embed)
-
-        except:
-            await interaction.response.send_message("An error has occured")
-
-    @app_commands.command(
-        name = "patchnotes",
-        description = "Retrieves the most recent 'patch notes' news for a game"
-        )
+    @app_commands.command(name = "patchnotes", description = "Retrieves the most recent 'patch notes' news for a game")
     @app_commands.describe(gametitle = "Enter your game title with exact spelling")
     async def patchnotes(self, interaction: Interaction, gametitle: str):
         try:
@@ -209,6 +131,10 @@ class GamesCog(commands.Cog):
             news_title = news['appnews']['newsitems'][0]['title']
             news_content = news['appnews']['newsitems'][0]['contents']
 
+            if news_content == "":
+                await interaction.response.send_message("No patch notes could be found.")
+                return
+
             embed = Embed(title = gametitle, url = news_url, color = 0x774299)
             embed.set_thumbnail(url = "https://clan.akamai.steamstatic.com/images/4145017/5d65f58bf860dc2c64e56e0f440a5168afb4228c.png")
             embed.add_field(name = news_title, value = news_content, inline=False)
@@ -217,10 +143,7 @@ class GamesCog(commands.Cog):
             
 
         except:
-            await interaction.response.send_message("No patch notes could be found.")
-        
-
-        #GetNewsForApp
+            await interaction.response.send_message("Error")
 
     
 
