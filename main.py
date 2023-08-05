@@ -10,6 +10,7 @@ from steam.webapi import WebAPI
 
 from cog.user_commands import UserCog
 from cog.game_data import GamesCog
+from cog.notify_tasks import Notifiers
 
 KEY = config("STEAM_API_KEY")
 api = WebAPI(key = KEY)
@@ -27,6 +28,7 @@ bot = commands.Bot(command_prefix='.', intents=intents)
 async def sync(ctx):
     user_cog = UserCog(bot)
     games_cog = GamesCog(bot)
+    tasks_cog = Notifiers(bot)
     cmds = await ctx.bot.tree.sync()
     await ctx.send(f"Synced {len(cmds)} to the server")
     return
@@ -34,8 +36,10 @@ async def sync(ctx):
 async def setup_cogs():
     user_cog = UserCog(bot)
     games_cog = GamesCog(bot)
+    tasks_cog = Notifiers(bot)
     await bot.add_cog(user_cog)
     await bot.add_cog(games_cog)
+    await bot.add_cog(tasks_cog)
 
 @bot.event
 async def on_ready():

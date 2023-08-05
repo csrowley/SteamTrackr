@@ -1,3 +1,6 @@
+from bs4 import BeautifulSoup
+import requests
+
 #fix search game with python api method 
 #https://store.steampowered.com/search/suggest
 def searchGameID(title: str, api) -> int:
@@ -12,39 +15,18 @@ def searchGameID(title: str, api) -> int:
     return 0
 
 
+def checkSaleEvents() -> str:
+        all_sales = {"steam spring sale", "steam summer sale", "steam autumn sale", "steam winter sale", "halloween"}
+        url = "https://store.steampowered.com/"
+        response = requests.get(url)
+        
+        soup = BeautifulSoup(response.text, "html.parser")
+        meta_desc = soup.find("meta", property="og:description")
 
-'''
-import requests
-
-def get_game_details(app_id):
-    url = f"https://store.steampowered.com/api/appdetails?appids={app_id}"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        data = response.json()
-        if data[str(app_id)]["success"]:
-            game_data = data[str(app_id)]["data"]
-            # Extract the information you need from game_data dictionary
-            name = game_data["name"]
-            price = game_data["price_overview"]["final_formatted"]
-            discount_percent = game_data["price_overview"]["discount_percent"]
-            # ...
-            return name, price, discount_percent
-        else:
-            # Game data retrieval failed
-            return None
-    else:
-        # Request failed
-        return None
-
-# Example usage
-app_id = 730  # App ID for Counter-Strike: Global Offensive
-game_info = get_game_details(app_id)
-if game_info:
-    name, price, discount_percent = game_info
-    print("Game Name:", name)
-    print("Price:", price)
-    print("Discount:", discount_percent)
-else:
-    print("Failed to retrieve game information.")
-'''
+        if meta_desc:
+            desc = meta_desc["content"].lower()
+            for sales in all_sales:
+                if sales in desc:
+                    return sales.title()
+                
+            return ""

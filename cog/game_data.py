@@ -25,6 +25,7 @@ class GamesCog(commands.Cog):
     @app_commands.command(name = "checkifsale", description = "Check if a game is on sale!")
     @app_commands.describe(title = "Enter a game title with exact spelling")
     async def checkifsale(self, interaction: Interaction, title: str):
+        
         try:
             appid = searchGameID(title,api)
             title_underscores = title.replace(' ', '_')

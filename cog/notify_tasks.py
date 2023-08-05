@@ -2,32 +2,40 @@ from discord.ext import tasks, commands
 from steam.webapi import WebAPI
 from decouple import config
 from discord import Interaction, Embed, app_commands
-import asyncpg
 from bs4 import BeautifulSoup
-import requests
+from apps import checkSaleEvents
 import datetime
+import pytz
 
 class Notifiers(commands.Cog):
 
-    _utc = datetime.timezone.utc
-    _time = datetime.time(hour= 17, minute=30, tzinfo=_utc)
-    
-    def init(self, bot):
+    _pst = pytz.timezone('US/Pacific')
+    _time = datetime.time(hour= 17, minute=30)
+    def __init__(self, bot):
         self.bot = bot
+        self.on_steam_event_sale.start()
 
     def cog_unload(self):
-        pass
+        self.on_steam_event_sale.cancel()
 
-        #possibly use "on_scheduled_event" ?
+    #possibly use "on_scheduled_event" ?
     #scrape the steam official news tab for possible sales
     @commands.command()
     async def setEventReminder(self,ctx, switch):
-        return
-
-
-    @tasks.loop(time=_time)
+        pass
+    
+    
+    #fix not working
+    @tasks.loop(time = _time)
     async def on_steam_event_sale(self):
-        pass #add in checksaleevents
+        print("Executing:")
+        checkevent = checkSaleEvents()
+
+        if not checkevent: return
+
+        for guild in self.bot.guilds:
+            if guild.system_channel:
+                await guild.system_channel.send(checkevent)
             
     #DB method
     @commands.Cog.listener()
@@ -36,19 +44,10 @@ class Notifiers(commands.Cog):
 
     @app_commands.command(description = "Checks for any major Steam Sales")
     async def checksaleevents(self, interaction: Interaction):
-        all_sales = {"steam spring sale", "steam summer sale", "steam autumn sale", "steam winter sale", "halloween"}
-        url = "https://store.steampowered.com/"
-        response = requests.get(url)
-        
-        soup = BeautifulSoup(response.text, "html.parser")
-        meta_desc = soup.find("meta", property="og:description")
+        checkevent = checkSaleEvents()
 
-        if meta_desc:
-            desc = meta_desc["content"].lower()
-            for sales in all_sales:
-                if sales in desc:
-                    await interaction.response.send_message(sales.title())
-                    return
-                
+        if checkevent:
+            await interaction.response.send_message(checkevent)
+        else:
             await interaction.response.send_message("No major sale event.")
 
