@@ -17,4 +17,4 @@ Planned Features:
 - Implement price/sale tracking on other for other major game marketplaces, i.e Epic Games
 
 
-SteamTrackr is not officially affiliates with Steam or Discord. 
+SteamTrackr is not officially affiliated with Steam or Discord. 
