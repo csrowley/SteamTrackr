@@ -45,7 +45,7 @@ async def setup_cogs():
 async def on_ready():
     await setup_cogs()
     print(f'Logged in as {bot.user} ({bot.user.id})')
-    print("Registered commands:", bot.commands)
+    #print("Registered commands:", bot.commands)
 
 
 def main():
