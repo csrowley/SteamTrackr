@@ -30,3 +30,7 @@ def checkSaleEvents() -> str:
                     return sales.title()
                 
             return ""
+        
+def emojize(country: str) -> str:
+    flag = ''.join(chr(ord(c) + 127397) for c in country.upper())
+    return flag
