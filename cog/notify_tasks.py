@@ -5,11 +5,9 @@ from discord import Interaction, Embed, app_commands
 from bs4 import BeautifulSoup
 from apps import checkSaleEvents
 import datetime
-import pytz
 
 class Notifiers(commands.Cog):
 
-    _pst = pytz.timezone('US/Pacific')
     _time = datetime.time(hour= 17, minute=30)
     def __init__(self, bot):
         self.bot = bot
@@ -25,7 +23,6 @@ class Notifiers(commands.Cog):
         pass
     
     
-    #fix not working
     @tasks.loop(time = _time)
     async def on_steam_event_sale(self):
         print("Executing:")
