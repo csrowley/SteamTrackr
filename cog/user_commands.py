@@ -84,8 +84,6 @@ class UserCog(commands.Cog):
             
             count = 1
             for game, playtime in sorted_dict.items():
-
-                if ceiling <= 0: break
                 time_in_hrs = playtime / 60.0
 
                 length_check = f'{game}: {round(time_in_hrs,1)} hrs'
@@ -97,6 +95,10 @@ class UserCog(commands.Cog):
 
                 message += f'{game}: {round(time_in_hrs,1)} hrs\n'
 
+                ceiling -= 1
+                if ceiling <= 0: break
+
+            embed.add_field(name = f"Page {count}", value=message, inline=False)
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
         except Exception as e:
@@ -133,25 +135,4 @@ class UserCog(commands.Cog):
 
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
-    
-    '''
-    GetPlayerSummaries
-    GetPlayerBans
-    ResolveVanityURL
-    '''
-
-    #DB method
-    @commands.command()
-    async def myWishlist(self, ctx, user):
-        return
-    
-    #DB method
-    @commands.command()
-    async def addWishlist(self, ctx, user, title):
-        return
-    
-    #DB method
-    @commands.command()
-    async def removeWishlist(self, ctx, user, title):
         return
