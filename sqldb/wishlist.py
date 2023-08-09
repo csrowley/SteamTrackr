@@ -37,13 +37,6 @@ def remove_all_wish(username):
           )""") 
 '''
 
-#c.execute("INSERT INTO wishlist VALUES ('nem', 'CSGO', 14.99, 'https://store.steampowered.com/app/730/CounterStrike_Global_Offensive/')")
-c.execute("SELECT * FROM wishlist WHERE user='nem'")
-print(c.fetchone())
-
-
-conn.commit()
-
 conn.close()
 
 print("connected to database")
