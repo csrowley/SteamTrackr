@@ -12,6 +12,8 @@ from cog.user_commands import UserCog
 from cog.game_data import GamesCog
 from cog.notify_tasks import Notifiers
 
+from cog.my_wishlist import Wishlist
+
 KEY = config("STEAM_API_KEY")
 api = WebAPI(key = KEY)
 
@@ -29,6 +31,7 @@ async def sync(ctx):
     user_cog = UserCog(bot)
     games_cog = GamesCog(bot)
     tasks_cog = Notifiers(bot)
+    wishlist_cog = Wishlist(bot)
     cmds = await ctx.bot.tree.sync()
     await ctx.send(f"Synced {len(cmds)} to the server")
     return
@@ -37,9 +40,11 @@ async def setup_cogs():
     user_cog = UserCog(bot)
     games_cog = GamesCog(bot)
     tasks_cog = Notifiers(bot)
+    wishlist_cog = Wishlist(bot)
     await bot.add_cog(user_cog)
     await bot.add_cog(games_cog)
     await bot.add_cog(tasks_cog)
+    await bot.add_cog(wishlist_cog)
 
 @bot.event
 async def on_ready():
