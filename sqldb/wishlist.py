@@ -1,5 +1,13 @@
 import sqlite3
-from cog.my_wishlist import Wishlist
+
+class Wishlist:
+    def __init__(self, user, title, price, link):
+        self.user = user
+        self.title = title
+        #self.initial_price = initial_price
+        self.price = price
+        self.link = link
+
 
 conn = sqlite3.connect('user_wishlists.db')
 c = conn.cursor()
@@ -7,7 +15,7 @@ c = conn.cursor()
 def insert_wish_list(wish):
     with conn:
         c.execute("INSERT INTO wishlist VALUES (:user, :title, :price, :link)",
-                {'user': wish.user, 'title': wish.title, 'price': wish.price, 'link': wish.link })
+                {'user': wish.user, 'title': wish.title, 'price': wish.price, 'link': wish.link})
 
 
 def get_wish_by_user(username):
@@ -28,6 +36,14 @@ def remove_all_wish(username):
     with conn:
         c.execute("DELETE from wishlist WHERE user= :user", {'user': username})
 
+def number_entries_from_user(username):
+    with conn:
+        c.execute("SELECT * FROM wishlist where user=:user", {'user': username})
+    rows = c.fetchall()
+    return len(rows)
+
+async def close_connection():
+    conn.close()
 
 '''c.execute("""CREATE TABLE wishlist (
           user text,
@@ -36,7 +52,5 @@ def remove_all_wish(username):
           link text
           )""") 
 '''
-
-conn.close()
 
 print("connected to database")
