@@ -123,16 +123,16 @@ class UserCog(commands.Cog):
         embed = Embed(title = f"{user_flag} {user_persona}", url = user_url, color = 0x774299)
         embed.set_thumbnail(url = user_summary['response']['players'][0]['avatarfull'])
 
-        embed.add_field(name = f"{user_persona}'s Summary", value = f"**Name:** {user_summary['response']['players'][0]['realname']}\n\n \
-                        **SteamID:** {user_summary['response']['players'][0]['steamid']}")
-        
+        embed.add_field(name=f"{user_persona}'s Summary",
+                value=f"**Name:** {user_summary['response']['players'][0]['realname']}\n"
+                      f"**SteamID:** {user_summary['response']['players'][0]['steamid']}\n\n")
+             
         embed.add_field(name = f"{user_persona}'s Bans:", 
-                                value = f"**VAC Banned:** {user_bans['players'][0]['VACBanned']}\n\n \
-                                **Times VAC Banned:** {user_bans['players'][0]['NumberOfVACBans']}\n\n \
-                                **Game Bans:** {user_bans['players'][0]['NumberOfGameBans']} \n\n \
-                                **Most Recent Ban:** {user_bans['players'][0]['DaysSinceLastBan']} days\n\n \
-                                **Economy Ban:** {user_bans['players'][0]['EconomyBan']}", inline= True)
-
+                                value = f"**VAC Banned:** {user_bans['players'][0]['VACBanned']}\n"
+                                f"**Times VAC Banned:** {user_bans['players'][0]['NumberOfVACBans']}\n"
+                                f"**Game Bans:** {user_bans['players'][0]['NumberOfGameBans']} \n" 
+                                f"**Most Recent Ban:** {user_bans['players'][0]['DaysSinceLastBan']} days\n"
+                                f"**Economy Ban:** {user_bans['players'][0]['EconomyBan']}", inline= True)
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
