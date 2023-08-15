@@ -14,13 +14,32 @@ class MyWishlist(commands.Cog):
 
     @app_commands.command(name = "mywishlist", description = "Retrieves all entries in your wishlist.")
     async def mywishlist(self, interaction: Interaction):
+        message = ""
+        addtomsg = ""
+        embed = Embed(title = f"\U0001F381 {interaction.user.name}'s Wishlist",  color = 0x774299)
         userWishlist = sqldb.wishlist.get_wish_by_user(interaction.user.name)
+        count = 1
             
         if userWishlist:
-            print(userWishlist)
+
+            for wish in userWishlist:
+                addtomsg = f"[{wish[1]}]({wish[3]}) | {wish[2]}"
+                if len(message) + len(addtomsg) >= 1024:
+                        embed.add_field(name = f"Page {count}", value=message, inline=False)
+                        message = ""
+                        count += 1
+
+                message += addtomsg
+                message += "\n"
+
+            embed.add_field(name = f"Page {count}", value=message, inline=False)
+
         else:
             print(interaction.user.name)
             await interaction.response.send_message("No wishlist found", ephemeral=True)
+            return
+        
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         
     #DB method
     @app_commands.command(name = "addwishlist", description = "Add a game title to your wishlist.")
@@ -42,9 +61,18 @@ class MyWishlist(commands.Cog):
             await interaction.response.send_message("Something went wrong. Make sure the spelling is correct.", ephemeral=True)
             return
         
-        
-        
-    #DB method
-    @commands.command()
-    async def removewishlist(self, interaction: Interaction, user, title):
-        return
+    
+    @app_commands.command(name = "removewishlist", description = "Remove an entry from your wishlist.")
+    @app_commands.describe(title = "Enter game title with exact spelling")
+    async def removewishlist(self, interaction: Interaction, title: str):
+        currsize = sqldb.wishlist.number_entries_from_user(interaction.user.name)
+        try:
+            sqldb.wishlist.remove_a_wish(interaction.user.name, title)
+
+            if(sqldb.wishlist.number_entries_from_user(interaction.user.name) < currsize):
+                await interaction.response.send_message("Entry successfully deleted.", ephemeral=True)
+            else:
+                await interaction.response.send_message("Something went wrong. Make sure the spelling is correct.", ephemeral=True)
+
+        except Exception as e:
+            await interaction.response.send_message("Something went wrong. Make sure the spelling is correct.", ephemeral=True)
