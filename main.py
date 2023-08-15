@@ -12,13 +12,21 @@ from cog.user_commands import UserCog
 from cog.game_data import GamesCog
 from cog.notify_tasks import Notifiers
 
-from cog.my_wishlist import Wishlist
+from cog.my_wishlist import MyWishlist
+
+import sqldb.wishlist
 
 KEY = config("STEAM_API_KEY")
 api = WebAPI(key = KEY)
 
 load_dotenv()
 token = config("TOKEN")
+
+class MyBot(commands.Bot):
+
+    async def close(self):
+        await sqldb.wishlist.close_connection()
+        await super().close()
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -31,7 +39,7 @@ async def sync(ctx):
     user_cog = UserCog(bot)
     games_cog = GamesCog(bot)
     tasks_cog = Notifiers(bot)
-    wishlist_cog = Wishlist(bot)
+    wishlist_cog = MyWishlist(bot)
     cmds = await ctx.bot.tree.sync()
     await ctx.send(f"Synced {len(cmds)} to the server")
     return
@@ -40,7 +48,7 @@ async def setup_cogs():
     user_cog = UserCog(bot)
     games_cog = GamesCog(bot)
     tasks_cog = Notifiers(bot)
-    wishlist_cog = Wishlist(bot)
+    wishlist_cog = MyWishlist(bot)
     await bot.add_cog(user_cog)
     await bot.add_cog(games_cog)
     await bot.add_cog(tasks_cog)
